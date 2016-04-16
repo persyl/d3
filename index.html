@@ -16,11 +16,13 @@
     }
     
     .bar-text {
-        -ms-transform: rotate(90deg);
+        -ms-transform: rotate(-90deg);
         /* IE 9 */
-        -webkit-transform: rotate(90deg);
+        -webkit-transform: rotate(-90deg);
         /* Chrome, Safari, Opera */
-        transform: rotate(90deg);
+        transform: rotate(-90deg);
+        font-style:italic;
+        font-size:14px;
     }
     
     .time-out-rects {
@@ -84,27 +86,33 @@
     function renderCSV(data) {
         var rects = svgCSV.selectAll('rect').data(data);
         var texts = svgCSV.selectAll('text').data(data);
-        var positioningValue = 45;
+        var positioningValue = 50;
         var barWidth = 40;
         rects.enter().append('rect')
             .attr('x', function(d) {
                 return (+d.index * positioningValue);
             })
+            .attr('y', function(d) {
+                var barHeight = -scaleCSV(+d.citizens);
+                var yValue = svgCSVHeight - barHeight;
+                return yValue;
+            })
             .attr('width', barWidth)
+            .attr('stroke', '#995711')
             .attr('fill', 'orange');
 
         //Update
         //console.log('scaleCSV: ', scaleCSV(+data.citizens));
         rects.attr('height', function(d) {
-            var yValue = scaleCSV(+d.citizens);
-            console.log('yValue:', yValue);
-            return yValue;
+            return -scaleCSV(+d.citizens);
         });
 
         texts.enter().append('text')
-            .attr('x', 10)
+            .attr('x', -svgCSVHeight + 10)
             .attr('y', function(d) {
-                return -(+d.index * positioningValue + barWidth / 3);
+                var yText = (+d.index * positioningValue + barWidth/1.5);
+                console. log('yText', yText);
+                return yText;
             })
             .text(function(d) {
                 return d.city;
@@ -114,8 +122,9 @@
             .attr("font-size", "20px");
         //rects.exit().remove();
     }
-    var svgCSV = d3.select('#csvExample').append('svg').attr('width', 200).attr('height', 350);
-    var scaleCSV = d3.scale.linear().domain([1, 4]).range([0, 0.001]);
+    var svgCSVHeight = 350;
+    var svgCSV = d3.select('#csvExample').append('svg').attr('width', 200).attr('height', svgCSVHeight);
+    var scaleCSV = d3.scale.linear().domain([1, 4]).range([0.001, 0]);
     d3.csv('foo.csv', function(allObjects) {
         renderCSV(allObjects);
     });
