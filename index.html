@@ -9,14 +9,29 @@
     <style>
     #d3Output {
         font-family: 'Slabo 27px', serif;
-        height: 400px;
-        overflow: scroll;
+        height: 100px;
+        width: 200px;
+        border: 1px dotted gray;
+        overflow: hidden;
+    }
+    
+    .bar-text {
+        -ms-transform: rotate(90deg);
+        /* IE 9 */
+        -webkit-transform: rotate(90deg);
+        /* Chrome, Safari, Opera */
+        transform: rotate(90deg);
+    }
+    
+    .time-out-rects {
+        border: 1px dotted red;
     }
     </style>
 </head>
 
 <body>
     <div id="d3Output">Vänligen vänta...</div>
+    <div id='csvExample'></div>
     <script>
     function optionalPreprocessor(d) {
         d.city = '<b>' + d.city + '</b>';
@@ -27,8 +42,82 @@
     d3.csv('foo.csv', optionalPreprocessor, function(allObjects) {
         outputElement.innerHTML = '';
         allObjects.forEach(function(d) {
-            outputElement.innerHTML += d.street + ', ' + d.city + '<br />';
+            outputElement.innerHTML += d.city + ', ' + d.citizens + '<br />';
         });
+    });
+
+    var scale1 = d3.scale.linear().domain([0, 1]).range([0, 100]);
+    var scale2 = d3.scale.ordinal().domain(['A', 'B', 'C']).range(['Apple', 'Banana', 'Coconut']);
+    console.log('scale2: ', scale2('B'));
+
+    // #########################################################################################
+    var scale3 = d3.scale.linear().domain([1, 5]).range([0, 200]);
+    var svg3 = d3.select('body').append('svg')
+        .attr('class', 'time-out-rects')
+        .attr('width', 250)
+        .attr('height', 100);
+
+    function render(data, color) {
+        var rects = svg3.selectAll('rect').data(data);
+        //enter will not update data already added. Without it it will affect all elements!
+        rects.enter().append('rect')
+            .attr('y', 50)
+            .attr('width', 20)
+            .attr('height', 20)
+
+        //Update
+        rects.attr('x', scale3).attr('fill', color);
+
+        //Exit will remove if there are more existing elements already than data coming in
+        rects.exit().remove();
+    }
+    setTimeout(function() {
+        render([1, 2.5, 3], 'red')
+    }, 1500);
+    setTimeout(function() {
+        render([1, 2, 3, 4, 5], 'blue')
+    }, 3000);
+    setTimeout(function() {
+        render([1, 2, 3], 'green')
+    }, 4500); //This line to demonstrate exit() method
+    // #########################################################################################
+    function renderCSV(data) {
+        var rects = svgCSV.selectAll('rect').data(data);
+        var texts = svgCSV.selectAll('text').data(data);
+        var positioningValue = 45;
+        var barWidth = 40;
+        rects.enter().append('rect')
+            .attr('x', function(d) {
+                return (+d.index * positioningValue);
+            })
+            .attr('width', barWidth)
+            .attr('fill', 'orange');
+
+        //Update
+        //console.log('scaleCSV: ', scaleCSV(+data.citizens));
+        rects.attr('height', function(d) {
+            var yValue = scaleCSV(+d.citizens);
+            console.log('yValue:', yValue);
+            return yValue;
+        });
+
+        texts.enter().append('text')
+            .attr('x', 10)
+            .attr('y', function(d) {
+                return -(+d.index * positioningValue + barWidth / 3);
+            })
+            .text(function(d) {
+                return d.city;
+            })
+            .attr('class', 'bar-text')
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "20px");
+        //rects.exit().remove();
+    }
+    var svgCSV = d3.select('#csvExample').append('svg').attr('width', 200).attr('height', 350);
+    var scaleCSV = d3.scale.linear().domain([1, 4]).range([0, 0.001]);
+    d3.csv('foo.csv', function(allObjects) {
+        renderCSV(allObjects);
     });
     </script>
     <h1>SVG testing</h1>
