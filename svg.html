@@ -7,19 +7,26 @@
     <title>Per testar SVG</title>
     <style>
     svg {
-        width:30%;
-         transition: width 2s;
+        width: 20%;
+        transition: width 2s;
     }
     </style>
     <script>
-    setTimeout(function(){
-        document.querySelector('svg').setAttribute('style','width:20%');
-    }, 2000);
+    setInterval(function() {
+        var svgElement = document.querySelector('svg');
+        var currentWidth = svgElement.getAttribute('style');
+        if (currentWidth && currentWidth === 'width:10%') {
+            svgElement.setAttribute('style', 'width:20%')
+        } else {
+            svgElement.setAttribute('style', 'width:10%')
+        }
+
+    }, 3000);
     </script>
 </head>
 
 <body>
-  <h1>Per testar SVG</h1>
+    <h1>Per testar SVG</h1>
     <svg viewBox="0 0 200 200">
         <rect class="rect01" width="200" height="200" x="0" y="0" fill="rgb(255,100,99)" stroke="black" stroke-width="3"></rect>
         <rect class="rect02" width="100" height="100" x="90" y="90" fill="rgba(0,255,0,0.3)"></rect>
